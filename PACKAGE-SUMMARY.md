@@ -231,7 +231,7 @@ MIT License - see [LICENSE.md](LICENSE.md)
 
 **Saeedvir**
 - GitHub: [@saeedvir](https://github.com/saeedvir)
-- Email: saeedvir@gmail.com
+- Email: saeed.es91@gmail.com
 
 ## Acknowledgments
 

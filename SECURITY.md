@@ -8,7 +8,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability within Laravel Gist Storage, please send an email to saeedvir@gmail.com. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within Laravel Gist Storage, please send an email to saeed.es91@gmail.com. All security vulnerabilities will be promptly addressed.
 
 Please do not publicly disclose the issue until it has been addressed by the maintainers.
 
@@ -138,7 +138,7 @@ class SecureFileController extends Controller
 
 ## Disclosure Policy
 
-- Report vulnerabilities privately to saeedvir@gmail.com
+- Report vulnerabilities privately to saeed.es91@gmail.com
 - Allow reasonable time for fixes before public disclosure
 - Credit will be given to reporters in security advisories
 - We aim to respond within 48 hours of receiving a report
@@ -164,6 +164,6 @@ Security patches will be released as soon as possible. To stay informed:
 
 ## Contact
 
-For security concerns, contact: saeedvir@gmail.com
+For security concerns, contact: saeed.es91@gmail.com
 
 For general issues, use [GitHub Issues](https://github.com/saeedvir/laravel-gist-storage/issues).
