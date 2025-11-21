@@ -82,6 +82,8 @@ Add the `gist` disk to your `config/filesystems.php`:
 ],
 ```
 
+**Note:** The package registers its configuration under the `gist-storage` namespace. The filesystem disk configuration uses environment variables to retrieve these settings.
+
 ## Step 7: Test the Installation
 
 Create a test route in `routes/web.php`:
