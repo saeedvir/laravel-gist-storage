@@ -17,7 +17,7 @@ class GistStorageServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../config/gist-storage.php',
-            'filesystems.disks.gist'
+            'gist-storage'
         );
     }
 
