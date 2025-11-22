@@ -28,14 +28,16 @@ use Throwable;
 class GistAdapter implements FilesystemAdapter
 {
     private GistClient $client;
-    private string $gistId;
+    private ?string $gistId;
     private array $fileCache = [];
     private bool $cacheLoaded = false;
+    private bool $autoCreate = false;
 
-    public function __construct(GistClient $client, string $gistId)
+    public function __construct(GistClient $client, ?string $gistId = null, bool $autoCreate = false)
     {
         $this->client = $client;
         $this->gistId = $gistId;
+        $this->autoCreate = $autoCreate;
     }
 
     /**
@@ -44,6 +46,12 @@ class GistAdapter implements FilesystemAdapter
     private function loadCache(): void
     {
         if ($this->cacheLoaded) {
+            return;
+        }
+
+        // If no gist ID and auto-create is disabled, can't load cache
+        if ($this->gistId === null) {
+            $this->cacheLoaded = true;
             return;
         }
 
@@ -61,7 +69,7 @@ class GistAdapter implements FilesystemAdapter
             
             $this->cacheLoaded = true;
         } catch (Throwable $e) {
-            throw UnableToReadFile::fromLocation($this->gistId, 'Failed to load gist metadata: ' . $e->getMessage());
+            throw UnableToReadFile::fromLocation($this->gistId ?? 'new-gist', 'Failed to load gist metadata: ' . $e->getMessage());
         }
     }
 
@@ -93,7 +101,7 @@ class GistAdapter implements FilesystemAdapter
     public function write(string $path, string $contents, Config $config): void
     {
         try {
-            $this->client->upload(
+            $result = $this->client->upload(
                 filename: $path,
                 content: $contents,
                 description: $config->get('description', ''),
@@ -101,7 +109,14 @@ class GistAdapter implements FilesystemAdapter
                 gistId: $this->gistId
             );
             
+            // If gist was just created, store the new gist ID
+            if ($this->gistId === null && isset($result['id'])) {
+                $this->gistId = $result['id'];
+            }
+            
+            // Invalidate and reload cache to ensure metadata is current
             $this->invalidateCache();
+            $this->loadCache();
         } catch (Throwable $e) {
             throw UnableToWriteFile::atLocation($path, $e->getMessage(), $e);
         }
@@ -110,6 +125,13 @@ class GistAdapter implements FilesystemAdapter
     public function writeStream(string $path, $contents, Config $config): void
     {
         try {
+            if(function_exists('is_resource') && function_exists('stream_get_meta_data')){
+                // Ensure stream is at the beginning
+                if (is_resource($contents) && stream_get_meta_data($contents)['seekable']) {
+                    rewind($contents);
+                }
+            }
+            
             $streamContents = stream_get_contents($contents);
             
             if ($streamContents === false) {
@@ -125,6 +147,10 @@ class GistAdapter implements FilesystemAdapter
     public function read(string $path): string
     {
         try {
+            if ($this->gistId === null) {
+                throw new RuntimeException('Cannot read file: No gist ID available. Write a file first to create the gist.');
+            }
+            
             $files = $this->client->download($this->gistId);
             
             if (!isset($files[$path])) {
@@ -159,8 +185,14 @@ class GistAdapter implements FilesystemAdapter
     public function delete(string $path): void
     {
         try {
+            if ($this->gistId === null) {
+                throw new RuntimeException('Cannot delete file: No gist ID available.');
+            }
+            
             $this->client->deleteFile($this->gistId, $path);
+            // Invalidate and reload cache to ensure metadata is current
             $this->invalidateCache();
+            $this->loadCache();
         } catch (Throwable $e) {
             throw UnableToDeleteFile::atLocation($path, $e->getMessage(), $e);
         }
@@ -245,7 +277,8 @@ class GistAdapter implements FilesystemAdapter
                 );
             }
         } catch (Throwable $e) {
-            // Return empty iterator on error
+            // Log error and return empty iterator
+            error_log("Gist listContents error for path '{$path}': " . $e->getMessage());
             return;
         }
     }
@@ -274,7 +307,7 @@ class GistAdapter implements FilesystemAdapter
     /**
      * Get the Gist ID
      */
-    public function getGistId(): string
+    public function getGistId(): ?string
     {
         return $this->gistId;
     }

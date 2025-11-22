@@ -30,6 +30,13 @@ class GistClient
         if ($this->token === '') {
             throw new InvalidArgumentException('GitHub token is required.');
         }
+        
+        // Validate token format (GitHub tokens start with specific prefixes)
+        if (!$this->isValidTokenFormat($this->token)) {
+            throw new InvalidArgumentException(
+                'Invalid GitHub token format. Token should start with ghp_, gho_, ghu_, ghs_, or ghr_'
+            );
+        }
     }
 
     /**
@@ -277,5 +284,33 @@ class GistClient
             ]
         ];
         return $this->request($url, 'PATCH', $data);
+    }
+
+    /**
+     * Validate GitHub token format
+     */
+    private function isValidTokenFormat(string $token): bool
+    {
+        // GitHub Personal Access Tokens have specific prefixes:
+        // ghp_ = Personal Access Token
+        // gho_ = OAuth Access token
+        // ghu_ = User-to-Server token
+        // ghs_ = Server-to-Server token
+        // ghr_ = Refresh token
+        $validPrefixes = ['ghp_', 'gho_', 'ghu_', 'ghs_', 'ghr_'];
+        
+        foreach ($validPrefixes as $prefix) {
+            if (str_starts_with($token, $prefix)) {
+                return true;
+            }
+        }
+        
+        // For backward compatibility with older tokens (before 2021)
+        // They were 40 character hex strings
+        if (strlen($token) === 40 && ctype_xdigit($token)) {
+            return true;
+        }
+        
+        return false;
     }
 }

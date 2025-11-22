@@ -22,8 +22,22 @@ return [
     | Example: https://gist.github.com/username/a1b2c3d4e5f6g7h8i9j0
     | The gist_id would be: a1b2c3d4e5f6g7h8i9j0
     |
+    | Leave this null if you want to auto-create a new gist (requires auto_create = true)
+    |
     */
     'gist_id' => env('GIST_ID'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Auto Create Gist
+    |--------------------------------------------------------------------------
+    |
+    | If true, a new gist will be automatically created when you first write a file.
+    | The gist ID will be stored in memory for subsequent operations.
+    | If false, you must provide a gist_id.
+    |
+    */
+    'auto_create' => env('GIST_AUTO_CREATE', false),
 
     /*
     |--------------------------------------------------------------------------

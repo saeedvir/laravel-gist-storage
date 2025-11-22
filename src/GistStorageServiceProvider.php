@@ -38,15 +38,21 @@ class GistStorageServiceProvider extends ServiceProvider
                 throw new \InvalidArgumentException('Gist storage requires a GitHub token.');
             }
 
-            if (empty($config['gist_id'])) {
-                throw new \InvalidArgumentException('Gist storage requires a gist_id.');
+            // gist_id is optional if auto_create is enabled
+            $gistId = $config['gist_id'] ?? null;
+            $autoCreate = $config['auto_create'] ?? false;
+
+            if (empty($gistId) && !$autoCreate) {
+                throw new \InvalidArgumentException(
+                    'Gist storage requires either a gist_id or auto_create set to true.'
+                );
             }
 
             // Create Gist client
             $client = new GistClient($config['token']);
 
             // Create Gist adapter
-            $adapter = new GistAdapter($client, $config['gist_id']);
+            $adapter = new GistAdapter($client, $gistId, $autoCreate);
 
             // Create Flysystem filesystem
             $filesystem = new Filesystem($adapter, [
