@@ -313,6 +313,20 @@ class GistAdapter implements FilesystemAdapter
     }
 
     /**
+     * Set the Gist ID dynamically
+     * 
+     * @param string $gistId The gist ID to use for subsequent operations
+     * @return self
+     */
+    public function setGistId(string $gistId): self
+    {
+        $this->gistId = $gistId;
+        // Invalidate cache when switching gists
+        $this->invalidateCache();
+        return $this;
+    }
+
+    /**
      * Get the GistClient instance
      */
     public function getClient(): GistClient

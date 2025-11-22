@@ -15,8 +15,16 @@ composer require saeedvir/laravel-gist-storage
 3. Select "gist" scope
 4. Copy the token
 
-## 3. Create a Gist
+## 3. Create a Gist (Optional)
 
+You have two options:
+
+**Option A: Auto-create a new gist**
+- Set `GIST_AUTO_CREATE=true` in `.env`
+- Skip creating a gist manually
+- The package will create one on first upload
+
+**Option B: Use existing gist**
 1. Go to https://gist.github.com/
 2. Create a new gist
 3. Copy the Gist ID from URL
@@ -29,7 +37,9 @@ Add to `.env`:
 
 ```env
 GIST_TOKEN=your_github_token_here
-GIST_ID=your_gist_id_here
+GIST_AUTO_CREATE=true  # Auto-create (recommended for new projects)
+# OR
+GIST_ID=your_gist_id_here  # Use existing gist
 ```
 
 Add to `config/filesystems.php`:
@@ -41,7 +51,8 @@ Add to `config/filesystems.php`:
     'gist' => [
         'driver' => 'gist',
         'token' => env('GIST_TOKEN'),
-        'gist_id' => env('GIST_ID'),
+        'gist_id' => env('GIST_ID'),  // Optional if auto_create is true
+        'auto_create' => env('GIST_AUTO_CREATE', false),
         'public' => env('GIST_PUBLIC', false),
         'description' => env('GIST_DESCRIPTION', 'Laravel files'),
     ],
@@ -66,6 +77,10 @@ if (Storage::disk('gist')->exists('hello.txt')) {
 
 // Delete
 Storage::disk('gist')->delete('hello.txt');
+
+// Dynamically switch gist ID
+Storage::disk('gist')->getAdapter()->setGistId('another_gist_id');
+Storage::disk('gist')->put('backup.txt', 'Backup data');
 ```
 
 ## Common Use Cases

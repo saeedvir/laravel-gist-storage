@@ -136,6 +136,10 @@ Storage::disk('gist')->delete('hello.txt');
 
 // Get the auto-created gist ID
 $gistId = Storage::disk('gist')->getAdapter()->getGistId();
+
+// Dynamically change gist ID
+Storage::disk('gist')->getAdapter()->setGistId('another_gist_id');
+Storage::disk('gist')->put('file.txt', 'New content in different gist');
 ```
 
 ## 📚 Documentation
@@ -186,6 +190,25 @@ $stats = json_decode(Storage::disk('gist')->get('stats.json'), true);
 $stream = fopen('large-file.txt', 'r');
 Storage::disk('gist')->writeStream('backup.txt', $stream);
 fclose($stream);
+```
+
+### Switch Between Multiple Gists
+
+```php
+// Work with gist A
+Storage::disk('gist')->getAdapter()->setGistId('gist_id_a');
+Storage::disk('gist')->put('config.json', json_encode(['app' => 'A']));
+
+// Switch to gist B
+Storage::disk('gist')->getAdapter()->setGistId('gist_id_b');
+Storage::disk('gist')->put('config.json', json_encode(['app' => 'B']));
+
+// Copy from one gist to another
+Storage::disk('gist')->getAdapter()->setGistId('source_gist');
+$data = Storage::disk('gist')->get('data.txt');
+
+Storage::disk('gist')->getAdapter()->setGistId('target_gist');
+Storage::disk('gist')->put('data.txt', $data);
 ```
 
 ## 🎯 Requirements

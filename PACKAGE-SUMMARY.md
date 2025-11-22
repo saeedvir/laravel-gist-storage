@@ -106,11 +106,16 @@ Flysystem v3 adapter implementing `FilesystemAdapter` interface.
 - `listContents()` - List all files
 - `move()` - Move/rename file
 - `copy()` - Copy a file
+- `getGistId()` - Get current gist ID
+- `setGistId()` - Dynamically change gist ID
 
 **Features:**
-- Efficient caching mechanism
-- Proper error handling
-- Stream support
+- Auto-create gists without pre-configuration
+- Efficient caching mechanism with smart invalidation
+- Token format validation
+- Proper error handling with detailed logging
+- Stream position handling
+- Runtime gist ID switching
 - Metadata retrieval
 
 ### 3. GistStorageServiceProvider
@@ -129,7 +134,8 @@ Laravel service provider for registering the driver.
 ### Environment Variables
 ```env
 GIST_TOKEN=your_github_token
-GIST_ID=your_gist_id
+GIST_AUTO_CREATE=true  # Auto-create new gist (optional)
+GIST_ID=your_gist_id  # Use existing gist (optional if auto_create=true)
 GIST_PUBLIC=false
 GIST_DESCRIPTION="Laravel files"
 ```
@@ -139,7 +145,8 @@ GIST_DESCRIPTION="Laravel files"
 'gist' => [
     'driver' => 'gist',
     'token' => env('GIST_TOKEN'),
-    'gist_id' => env('GIST_ID'),
+    'gist_id' => env('GIST_ID'),  // Optional if auto_create is true
+    'auto_create' => env('GIST_AUTO_CREATE', false),
     'public' => env('GIST_PUBLIC', false),
     'description' => env('GIST_DESCRIPTION', 'Laravel files'),
 ],
@@ -153,6 +160,13 @@ Storage::disk('gist')->put('file.txt', 'content');
 Storage::disk('gist')->get('file.txt');
 Storage::disk('gist')->exists('file.txt');
 Storage::disk('gist')->delete('file.txt');
+
+// Get gist ID
+$gistId = Storage::disk('gist')->getAdapter()->getGistId();
+
+// Switch to different gist
+Storage::disk('gist')->getAdapter()->setGistId('another_gist_id');
+Storage::disk('gist')->put('file.txt', 'content in different gist');
 ```
 
 ### File Uploads
