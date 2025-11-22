@@ -62,6 +62,7 @@ Don't have a Gist ID? Enable `auto_create` and the package will create one for y
 - Token format validation to catch configuration errors early  
 - Smart cache invalidation to keep metadata synchronized
 - Stream position handling for reliable large file uploads
+- Proper boolean conversion for environment variables
 
 ### 8. **Multiple Use Cases**
 - **Configuration Storage** - Store app configs, feature flags, or environment settings

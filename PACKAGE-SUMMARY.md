@@ -116,6 +116,7 @@ Flysystem v3 adapter implementing `FilesystemAdapter` interface.
 - Proper error handling with detailed logging
 - Stream position handling
 - Runtime gist ID switching
+- Boolean environment variable conversion
 - Metadata retrieval
 
 ### 3. GistStorageServiceProvider

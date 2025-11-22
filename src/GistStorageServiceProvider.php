@@ -40,7 +40,7 @@ class GistStorageServiceProvider extends ServiceProvider
 
             // gist_id is optional if auto_create is enabled
             $gistId = $config['gist_id'] ?? null;
-            $autoCreate = $config['auto_create'] ?? false;
+            $autoCreate = filter_var($config['auto_create'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
             if (empty($gistId) && !$autoCreate) {
                 throw new \InvalidArgumentException(
